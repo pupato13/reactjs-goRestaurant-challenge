@@ -1,89 +1,105 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
-import { FiEdit3, FiTrash } from 'react-icons/fi';
+import { FiEdit3, FiTrash } from "react-icons/fi";
 
-import { Container } from './styles';
+import api from "../../services/api";
+
+import { Container } from "./styles";
 
 interface IFoodPlate {
-  id: number;
-  name: string;
-  image: string;
-  price: string;
-  description: string;
-  available: boolean;
+    id: number;
+    name: string;
+    image: string;
+    price: string;
+    description: string;
+    available: boolean;
 }
 
 interface IProps {
-  food: IFoodPlate;
-  handleDelete: (id: number) => {};
-  handleEditFood: (food: IFoodPlate) => void;
+    food: IFoodPlate;
+    handleDelete: (id: number) => {};
+    handleEditFood: (food: IFoodPlate) => void;
 }
 
 const Food: React.FC<IProps> = ({
-  food,
-  handleDelete,
-  handleEditFood,
+    food,
+    handleDelete,
+    handleEditFood,
 }: IProps) => {
-  const [isAvailable, setIsAvailable] = useState(food.available);
+    const [isAvailable, setIsAvailable] = useState(food.available);
 
-  async function toggleAvailable(): Promise<void> {
-    // TODO UPDATE STATUS (available)
-  }
+    async function toggleAvailable(): Promise<void> {
+        // TODO UPDATE STATUS (available)
+        try {
+            await api.put(`/foods/${food.id}`, {
+                ...food,
+                available: !isAvailable,
+            });
 
-  function setEditingFood(): void {
-    // TODO - SET THE ID OF THE CURRENT ITEM TO THE EDITING FOOD AND OPEN MODAL
-  }
+            setIsAvailable(!isAvailable);
+        } catch (err) {
+            console.log(err);
+        }
+    }
 
-  return (
-    <Container available={isAvailable}>
-      <header>
-        <img src={food.image} alt={food.name} />
-      </header>
-      <section className="body">
-        <h2>{food.name}</h2>
-        <p>{food.description}</p>
-        <p className="price">
-          R$ <b>{food.price}</b>
-        </p>
-      </section>
-      <section className="footer">
-        <div className="icon-container">
-          <button
-            type="button"
-            className="icon"
-            onClick={() => setEditingFood()}
-            data-testid={`edit-food-${food.id}`}
-          >
-            <FiEdit3 size={20} />
-          </button>
+    function setEditingFood(): void {
+        // TODO - SET THE ID OF THE CURRENT ITEM TO THE EDITING FOOD AND OPEN MODAL
+        handleEditFood(food);
+    }
 
-          <button
-            type="button"
-            className="icon"
-            onClick={() => handleDelete(food.id)}
-            data-testid={`remove-food-${food.id}`}
-          >
-            <FiTrash size={20} />
-          </button>
-        </div>
+    return (
+        <Container available={isAvailable}>
+            <header>
+                <img src={food.image} alt={food.name} />
+            </header>
+            <section className="body">
+                <h2>{food.name}</h2>
+                <p>{food.description}</p>
+                <p className="price">
+                    R$ <b>{food.price}</b>
+                </p>
+            </section>
+            <section className="footer">
+                <div className="icon-container">
+                    <button
+                        type="button"
+                        className="icon"
+                        onClick={() => setEditingFood()}
+                        data-testid={`edit-food-${food.id}`}
+                    >
+                        <FiEdit3 size={20} />
+                    </button>
 
-        <div className="availability-container">
-          <p>{isAvailable ? 'Disponível' : 'Indisponível'}</p>
+                    <button
+                        type="button"
+                        className="icon"
+                        onClick={() => handleDelete(food.id)}
+                        data-testid={`remove-food-${food.id}`}
+                    >
+                        <FiTrash size={20} />
+                    </button>
+                </div>
 
-          <label htmlFor={`available-switch-${food.id}`} className="switch">
-            <input
-              id={`available-switch-${food.id}`}
-              type="checkbox"
-              checked={isAvailable}
-              onChange={toggleAvailable}
-              data-testid={`change-status-food-${food.id}`}
-            />
-            <span className="slider" />
-          </label>
-        </div>
-      </section>
-    </Container>
-  );
+                <div className="availability-container">
+                    <p>{isAvailable ? "Disponível" : "Indisponível"}</p>
+
+                    <label
+                        htmlFor={`available-switch-${food.id}`}
+                        className="switch"
+                    >
+                        <input
+                            id={`available-switch-${food.id}`}
+                            type="checkbox"
+                            checked={isAvailable}
+                            onChange={toggleAvailable}
+                            data-testid={`change-status-food-${food.id}`}
+                        />
+                        <span className="slider" />
+                    </label>
+                </div>
+            </section>
+        </Container>
+    );
 };
 
 export default Food;
